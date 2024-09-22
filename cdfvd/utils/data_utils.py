@@ -259,7 +259,7 @@ class FrameDataset(data.Dataset):
                 os.path.join(root, item) for item in frames
                 if is_image_file(item)
             ]
-            if len(frames) > max(0, self.sequence_length * self.sample_every_n_frames):
+            if len(frames) >= max(0, self.sequence_length * self.sample_every_n_frames):
                 data_all.append(frames)
 
         return data_all
@@ -308,7 +308,7 @@ class FrameDataset(data.Dataset):
 
             img = img.resize(
                 (self.resolution, self.resolution),
-                Image.ANTIALIAS)
+                Image.LANCZOS) # Replace Image.ANTIALIAS with Image.LANCZOS, since Image.ANTIALIAS is deprecated after Pillow 10.0.0
             img = np.asarray(img, dtype=np.float32)
             img /= 255.
             img_tensor = preprocess_image(img).unsqueeze(0)

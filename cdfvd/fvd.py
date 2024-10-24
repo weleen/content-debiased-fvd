@@ -8,6 +8,7 @@ from .utils.metric_utils import seed_everything, FeatureStats
 import numpy as np
 import torch
 import requests
+import torch.distributed as dist
 
 from tqdm import tqdm
 from einops import rearrange
@@ -26,7 +27,7 @@ def get_videomae_features(stats, model, videos, batchsize=16, device='cuda', mod
         input_data = input_data.to(device=device, dtype=model_dtype)
         with torch.no_grad():
             features = model.forward_features(input_data)
-            stats.append_torch(features, num_gpus=1, rank=0)
+            stats.append_torch(features, num_gpus=dist.get_world_size(), rank=dist.get_rank())
     return stats
 
 
@@ -38,7 +39,7 @@ def get_i3d_logits(stats, i3d, videos, batchsize=16, device='cuda', model_dtype=
         input_data = input_data.to(device=device, dtype=model_dtype)
         with torch.no_grad():
             features = i3d(input_data)
-            stats.append_torch(features, num_gpus=1, rank=0)
+            stats.append_torch(features, num_gpus=dist.get_world_size(), rank=dist.get_rank())
     return stats
 
 
